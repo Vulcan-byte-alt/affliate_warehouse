@@ -439,8 +439,7 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      opacity: 0;                     /* hidden until ready — JS fades it in */
-      transition: opacity 0.8s ease;
+      opacity: 0.45;
     }
 
     /* Glow orbs */
@@ -3831,7 +3830,7 @@
 
     <!-- Video background -->
     <video id="hero-video" autoplay muted loop playsinline aria-hidden="true">
-      <source src="hero.mp4" type="video/mp4">
+      <source src="hero-web.mp4" type="video/mp4">
     </video>
 
     <!-- Dark gradient overlay -->
@@ -5867,18 +5866,24 @@
 
 
     // ════════════════════════════════════════════════════════
-    // HERO — Video: show directly when ready, no poster flash
+    // HERO — Video
+    // Video is visible from CSS (opacity 0.45) — no JS fade needed.
+    // hero.png is only used as a fallback if the video fails to load.
     // ════════════════════════════════════════════════════════
     (function initHeroVideo() {
       var v = document.getElementById('hero-video');
       if (!v) return;
-      function showVideo() { v.style.opacity = '0.45'; }
-      // readyState 3 = HAVE_FUTURE_DATA (enough data to play)
-      if (v.readyState >= 3) {
-        showVideo();
-      } else {
-        v.addEventListener('canplaythrough', showVideo, { once: true });
-      }
+
+      // If video fails entirely, fall back to the still image
+      v.addEventListener('error', function() {
+        document.getElementById('hero').style.backgroundImage = "url('hero.png')";
+        document.getElementById('hero').style.backgroundSize  = 'cover';
+        document.getElementById('hero').style.backgroundPosition = 'center';
+      }, { once: true });
+
+      v.play().catch(function() {
+        // Autoplay blocked — video stays dark, that is acceptable
+      });
     })();
 
     // ════════════════════════════════════════════════════════
